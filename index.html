@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flag Royale - Rafid Ahamed PRO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;500;700&family=Bebas+Neue&display=swap');
+        
+        body { 
+            margin: 0; background: #000; overflow: hidden; 
+            font-family: 'Oswald', sans-serif; 
+            display: flex; flex-direction: column; 
+            align-items: center; height: 100vh; 
+        }
+
+        /* স্ট্যাটাস বার */
+        #top-bar {
+            margin-top: 10px; width: 95%; max-width: 600px;
+            display: flex; justify-content: space-around; align-items: center;
+            background: rgba(15, 23, 42, 0.95); padding: 10px 0;
+            border-bottom: 3px solid #00d2ff; border-radius: 12px;
+            z-index: 10; box-shadow: 0 5px 15px rgba(0, 210, 255, 0.2);
+        }
+
+        .stat-item { text-align: center; flex: 1; }
+        .stat-label { font-size: 11px; color: #00d2ff; text-transform: uppercase; font-weight: 300; }
+        .stat-value { font-size: 26px; color: #fff; font-weight: 700; line-height: 1; }
+
+        /* বাটন কন্টেইনার */
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            letter-spacing: 1px;
+        }
+
+        #start-btn { background: #00ff95; color: #000; box-shadow: 0 0 10px #00ff95; }
+        #start-btn:hover { background: #fff; transform: scale(1.1); }
+
+        #exit-btn { background: #ff0055; color: #fff; box-shadow: 0 0 10px #ff0055; }
+        #exit-btn:hover { background: #fff; color: #000; transform: scale(1.1); }
+
+        /* বড় এবং আকর্ষণীয় কমেন্ট হুক */
+        #comment-hook {
+            margin-top: 5px; color: #ffeb3b; 
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px; 
+            text-align: center; text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
+            letter-spacing: 2px;
+            animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow { from { transform: scale(0.95); opacity: 0.8; } to { transform: scale(1.05); opacity: 1; } }
+
+        /* গেম কন্টেইনার */
+        #game-container {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            width: 100%; position: relative;
+        }
+        canvas { display: block; border-radius: 50%; }
+
+        /* নতুন স্মার্ট লিডারবোর্ড (Grid System) */
+        #leaderboard-box {
+            width: 92%; max-width: 550px; height: 130px;
+            background: rgba(15, 23, 42, 0.95); border: 1px solid #334155;
+            border-radius: 12px; margin-bottom: 10px; padding: 10px;
+            color: white; overflow: hidden;
+        }
+        #leaderboard-box h3 { margin: 0 0 8px 0; font-size: 14px; color: #00d2ff; text-transform: uppercase; border-bottom: 1px solid #334155; padding-bottom: 3px; }
+        
+        #history-list {
+            display: flex; flex-direction: column;
+            flex-wrap: wrap; 
+            align-content: flex-start;
+            height: 90px; gap: 5px;
+        }
+        .history-entry { 
+            width: 130px; 
+            background: #1e293b; padding: 4px 8px; 
+            border-radius: 4px; font-size: 11px; 
+            border-left: 3px solid #00d2ff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        #footer {
+            width: 100%; padding: 8px 0; background: #0f172a;
+            color: #666; text-align: center; font-size: 11px;
+            border-top: 1px solid #334155;
+        }
+        #footer span { color: #00d2ff; }
+
+        #winner-popup { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            background: rgba(0,0,0,0.98); border: 4px solid #00ff95; border-radius: 20px; 
+            padding: 40px; color: white; text-align: center; display: none; z-index: 1000; 
+        }
+        #winner-flag-img { width: 180px; border: 3px solid #fff; margin-top: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="top-bar">
+        <div class="stat-item"><div class="stat-label">Season</div><div id="round-val" class="stat-value">1</div></div>
+        <div class="stat-item" style="border-left:1px solid #334155;border-right:1px solid #334155;"><div class="stat-label">Alive</div><div id="alive-val" class="stat-value">0</div></div>
+        <div class="stat-item"><div class="stat-label">Eliminated</div><div id="eliminated-val" class="stat-value">0</div></div>
+    </div>
+
+    <div class="controls">
+        <button id="start-btn" class="btn" onclick="startNewGame()">Start Game</button>
+        <button id="exit-btn" class="btn" onclick="exitGame()">Exit Game</button>
+    </div>
+<br>
+    <div id="comment-hook">📢 COMMENT YOUR COUNTRY TO WIN! 📢</div>
+
+    <div id="game-container">
+        <div id="winner-popup">
+            <h1 id="win-flag-name" style="margin:0; font-size: 35px; color: #00ff95; font-family: 'Bebas Neue';">WINNER!</h1>
+            <img id="winner-flag-img" src="" alt="">
+            <p style="margin-top: 20px; color: #aaa; letter-spacing: 2px;">PREPARING NEXT ROUND...</p>
+        </div>
+    </div>
+
+    <div id="leaderboard-box">
+        <h3>🏆 Hall of Fame (Winners)</h3>
+        <div id="history-list"></div>
+    </div>
+
+    <div id="footer">
+        &copy; 2026 | Created by <span>Rafid Ahammed</span> | Copyright Protected
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+    <script>
+        const { Engine, Render, Runner, Bodies, Composite, Body, Events } = Matter;
+        const engine = Engine.create();
+        const world = engine.world;
+        engine.gravity.y = 1.35;
+
+        const dpr = window.devicePixelRatio || 1;
+        const baseSize = Math.min(window.innerWidth, window.innerHeight) * 0.88; 
+        const width = baseSize; const height = baseSize;
+
+        const render = Render.create({
+            element: document.getElementById('game-container'),
+            engine: engine,
+            options: { width: width * dpr, height: height * dpr, wireframes: false, background: 'transparent' }
+        });
+
+        render.canvas.style.width = width + 'px';
+        render.canvas.style.height = height + 'px';
+        const ctx = render.canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        Render.run(render);
+        const runner = Runner.create({ isFixed: true, delta: 1000 / 60 });
+        Runner.run(runner, engine);
+
+        const centerX = width / 2; const centerY = height / 2;
+        const radius = width / 2.2;
+        let balls = []; let outerCircle = []; let xBarrier = [];
+        let gameActive = false; let roundCount = 1;
+
+        const countries = [
+            {n:"BANGLADESH", c:"bd"}, {n:"INDIA", c:"in"}, {n:"USA", c:"us"}, {n:"BRAZIL", c:"br"}, {n:"ARGENTINA", c:"ar"},
+            {n:"GERMANY", c:"de"}, {n:"FRANCE", c:"fr"}, {n:"UK", c:"gb"}, {n:"CHINA", c:"cn"}, {n:"JAPAN", c:"jp"},
+            {n:"RUSSIA", c:"ru"}, {n:"SAUDI ARABIA", c:"sa"}, {n:"PAKISTAN", c:"pk"}, {n:"CANADA", c:"ca"}, {n:"AUSTRALIA", c:"au"},
+            {n:"ITALY", c:"it"}, {n:"SPAIN", c:"es"}, {n:"PORTUGAL", c:"pt"}, {n:"TURKEY", c:"tr"}, {n:"QATAR", c:"qa"},
+            {n:"UAE", c:"ae"}, {n:"SOUTH KOREA", c:"kr"}, {n:"NORTH KOREA", c:"kp"}, {n:"MEXICO", c:"mx"}, {n:"EGYPT", c:"eg"},
+            {n:"SOUTH AFRICA", c:"za"}, {n:"NIGERIA", c:"ng"}, {n:"NETHERLANDS", c:"nl"}, {n:"SWITZERLAND", c:"ch"}, {n:"SWEDEN", c:"se"},
+            {n:"NORWAY", c:"no"}, {n:"DENMARK", c:"dk"}, {n:"MALAYSIA", c:"my"}, {n:"INDONESIA", c:"id"}, {n:"VIETNAM", c:"vn"},
+            {n:"THAILAND", c:"th"}, {n:"SINGAPORE", c:"sg"}, {n:"NEW ZEALAND", c:"nz"}, {n:"IRAN", c:"ir"}, {n:"IRAQ", c:"iq"},
+            {n:"AFGHANISTAN", c:"af"}, {n:"PALESTINE", c:"ps"}, {n:"MOROCCO", c:"ma"}, {n:"UKRAINE", c:"ua"}, {n:"POLAND", c:"pl"},
+            {n:"BELGIUM", c:"be"}, {n:"FINLAND", c:"fi"}, {n:"GREECE", c:"gr"}, {n:"SRI LANKA", c:"lk"}, {n:"BHUTAN", c:"bt"}
+        ];
+
+        function startNewGame() {
+            if (!gameActive) {
+                initGame();
+            }
+        }
+
+        function exitGame() {
+            gameActive = false;
+            Composite.clear(world);
+            balls = [];
+            outerCircle = [];
+            xBarrier = [];
+            document.getElementById('alive-val').innerText = "0";
+            document.getElementById('eliminated-val').innerText = "0";
+            document.getElementById('winner-popup').style.display = 'none';
+        }
+
+        function initGame() {
+            Composite.clear(world);
+            balls = []; outerCircle = []; xBarrier = [];
+            gameActive = true;
+            document.getElementById('winner-popup').style.display = 'none';
+            document.getElementById('round-val').innerText = roundCount;
+
+            const segments = 90; 
+            for (let i = 0; i < segments; i++) {
+                if (i < 9) continue; 
+                const angle = (i / segments) * Math.PI * 2;
+                const wall = Bodies.rectangle(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius, 35, 15, { isStatic: true, angle: angle, render: { fillStyle: '#00d2ff' } });
+                outerCircle.push(wall);
+            }
+            Composite.add(world, outerCircle);
+
+            const crossLen = radius * 1.95;
+            xBarrier = [
+                Bodies.rectangle(centerX, centerY, crossLen, 14, { isStatic: true, angle: Math.PI / 4, render: { fillStyle: '#ff0055' } }),
+                Bodies.rectangle(centerX, centerY, crossLen, 14, { isStatic: true, angle: -Math.PI / 4, render: { fillStyle: '#ff0055' } })
+            ];
+            Composite.add(world, xBarrier);
+
+            countries.forEach((country) => {
+                const imgUrl = `https://flagcdn.com/w160/${country.c}.png`;
+                const ball = Bodies.rectangle(centerX + (Math.random()-0.5)*150, centerY + (Math.random()-0.5)*150, 28, 20, {
+                    restitution: 0.5, friction: 0.05,
+                    render: { sprite: { texture: imgUrl, xScale: 0.18, yScale: 0.18 } }
+                });
+                ball.isAlive = true; ball.flagUrl = imgUrl; ball.flagName = country.n;
+                balls.push(ball);
+            });
+            Composite.add(world, balls);
+            updateUI();
+        }
+
+        setInterval(() => {
+            if (!gameActive) return;
+            xBarrier.forEach(b => { b.isSensor = true; b.render.opacity = 0.1; });
+            setTimeout(() => { xBarrier.forEach(b => { b.isSensor = false; b.render.opacity = 1; }); }, 1700); 
+        }, 4500);
+
+        function updateUI() {
+            if (!gameActive) return;
+            const alive = balls.filter(b => b.isAlive).length;
+            document.getElementById('alive-val').innerText = alive;
+            document.getElementById('eliminated-val').innerText = countries.length - alive;
+        }
+
+        Events.on(engine, 'beforeUpdate', () => {
+            if (!gameActive) return;
+            const rot = 0.022; 
+            outerCircle.forEach(w => Body.rotate(w, rot, { x: centerX, y: centerY }));
+            xBarrier.forEach(b => Body.rotate(b, rot, { x: centerX, y: centerY }));
+
+            balls.forEach(ball => {
+                if (ball.isAlive) {
+                    const dist = Math.sqrt(Math.pow(ball.position.x - centerX, 2) + Math.pow(ball.position.y - centerY, 2));
+                    if (dist > radius + 70) {
+                        ball.isAlive = false;
+                        updateUI();
+                        checkWinner();
+                    }
+                }
+            });
+        });
+
+        function checkWinner() {
+            const alive = balls.filter(b => b.isAlive);
+            if (alive.length === 1 && gameActive) {
+                gameActive = false;
+                const winner = alive[0];
+                document.getElementById('win-flag-name').innerText = winner.flagName;
+                document.getElementById('winner-flag-img').src = winner.flagUrl;
+                document.getElementById('winner-popup').style.display = 'block';
+
+                const historyList = document.getElementById('history-list');
+                if (historyList.scrollHeight > historyList.clientHeight * 2.5) {
+                    historyList.innerHTML = ""; 
+                }
+
+                const entry = document.createElement('div');
+                entry.className = 'history-entry';
+                entry.innerHTML = `<b>R${roundCount}:</b> ${winner.flagName}`;
+                historyList.appendChild(entry);
+
+                setTimeout(() => { 
+                    roundCount++; 
+                    initGame(); 
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>
+
