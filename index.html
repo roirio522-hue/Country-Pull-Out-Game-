@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flag Royale - Rafid Ahamed PRO</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;500;700&family=Bebas+Neue&display=swap');
         
         body { 
-            margin: 0; 
-            /* ছবির মতো হালকা নীল ব্যাকগ্রাউন্ড */
-            background: linear-gradient(to bottom, #b2ebf2, #e0f7fa); 
+            margin: 0; background: linear-gradient(to bottom, #b2ebf2, #e0f7fa); 
             overflow: hidden; 
             font-family: 'Oswald', sans-serif; 
             display: flex; flex-direction: column; 
             align-items: center; height: 100vh; 
+            width: 100vw;
         }
 
-        /* স্ট্যাটাস বার */
+        /* ফুল স্ক্রিন মোডে ব্যাকগ্রাউন্ড ঠিক রাখা */
+        body:-webkit-full-screen { background: linear-gradient(to bottom, #b2ebf2, #e0f7fa); width: 100%; height: 100%; }
+
         #top-bar {
             margin-top: 10px; width: 95%; max-width: 600px;
             display: flex; justify-content: space-around; align-items: center;
@@ -30,18 +31,19 @@
         .stat-label { font-size: 11px; color: #00838f; text-transform: uppercase; font-weight: 700; }
         .stat-value { font-size: 26px; color: #333; font-weight: 700; line-height: 1; }
 
-        /* বাটন কন্টেইনার */
         .controls {
             margin-top: 15px;
             display: flex;
-            gap: 20px;
+            gap: 10px;
             z-index: 20;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .btn {
-            padding: 10px 25px;
+            padding: 8px 18px;
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
+            font-size: 18px;
             text-transform: uppercase;
             border: none;
             border-radius: 8px;
@@ -51,75 +53,45 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        #start-btn { background: #ff5252; color: #fff; } /* ছবির মতো লাল বাটন */
-        #start-btn:hover { background: #ff1744; transform: scale(1.05); }
-
+        #start-btn { background: #ff5252; color: #fff; }
         #exit-btn { background: #455a64; color: #fff; }
-        #exit-btn:hover { background: #263238; transform: scale(1.05); }
+        /* ফুল স্ক্রিন বাটন স্টাইল */
+        #fs-btn { background: #00acc1; color: #fff; } 
 
-        /* কমেন্ট হুক */
         #comment-hook {
             margin-top: 5px; color: #d32f2f; 
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 32px; 
+            font-size: 28px; 
             text-align: center; text-transform: uppercase;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            letter-spacing: 2px;
             animation: glow 1.5s infinite alternate;
         }
         @keyframes glow { from { transform: scale(0.98); } to { transform: scale(1.02); } }
 
-        /* গেম কন্টেইনার */
         #game-container {
             flex-grow: 1; display: flex; justify-content: center; align-items: center;
             width: 100%; position: relative;
         }
-        canvas { 
-            display: block; 
-            border-radius: 50%; 
-            /* সার্কেলের বর্ডার ছবির মতো সবুজ */
-            border: 4px solid #2e7d32; 
-        }
+        canvas { display: block; border-radius: 50%; border: 4px solid #2e7d32; }
 
-        /* লিডারবোর্ড */
         #leaderboard-box {
-            width: 92%; max-width: 550px; height: 130px;
+            width: 92%; max-width: 550px; height: 110px;
             background: rgba(255, 255, 255, 0.9); border: 1px solid #b2ebf2;
-            border-radius: 12px; margin-bottom: 10px; padding: 10px;
+            border-radius: 12px; margin-bottom: 5px; padding: 10px;
             color: #333; overflow: hidden;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
-        #leaderboard-box h3 { margin: 0 0 8px 0; font-size: 14px; color: #00838f; text-transform: uppercase; border-bottom: 1px solid #e0f7fa; padding-bottom: 3px; }
+        #leaderboard-box h3 { margin: 0 0 5px 0; font-size: 14px; color: #00838f; border-bottom: 1px solid #e0f7fa; }
         
-        #history-list {
-            display: flex; flex-direction: column;
-            flex-wrap: wrap; 
-            align-content: flex-start;
-            height: 90px; gap: 5px;
-        }
-        .history-entry { 
-            width: 130px; 
-            background: #fff; padding: 4px 8px; 
-            border-radius: 4px; font-size: 11px; 
-            border-left: 3px solid #00acc1;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
-        }
+        #history-list { display: flex; flex-direction: column; flex-wrap: wrap; height: 75px; gap: 5px; }
+        .history-entry { width: 120px; background: #fff; padding: 3px 8px; border-radius: 4px; font-size: 10px; border-left: 3px solid #00acc1; }
 
-        #footer {
-            width: 100%; padding: 8px 0; background: #e0f7fa;
-            color: #546e7a; text-align: center; font-size: 11px;
-            border-top: 1px solid #b2ebf2;
-        }
-        #footer span { color: #00838f; font-weight: bold; }
+        #footer { width: 100%; padding: 5px 0; background: #e0f7fa; color: #546e7a; text-align: center; font-size: 10px; }
 
         #winner-popup { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
             background: rgba(255,255,255,0.95); border: 4px solid #2e7d32; border-radius: 20px; 
-            padding: 40px; color: #333; text-align: center; display: none; z-index: 1000; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            padding: 30px; color: #333; text-align: center; display: none; z-index: 1000; 
         }
-        #winner-flag-img { width: 180px; border: 3px solid #00acc1; margin-top: 15px; border-radius: 5px; }
+        #winner-flag-img { width: 150px; border: 2px solid #00acc1; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -131,51 +103,57 @@
     </div>
 
     <div class="controls">
-        <button id="start-btn" class="btn" onclick="startNewGame()">Start Game</button>
-        <button id="exit-btn" class="btn" onclick="exitGame()">Exit Game</button>
+        <button id="start-btn" class="btn" onclick="startNewGame()">Start</button>
+        <button id="fs-btn" class="btn" onclick="toggleFullScreen()">Full Screen</button>
+        <button id="exit-btn" class="btn" onclick="exitGame()">Exit</button>
     </div>
-<br>
-    <div id="comment-hook"><h5>📢 COMMENT YOUR COUNTRY TO WIN! 📢</h5></div>
+
+    <div id="comment-hook"><h5>📢 COMMENT YOUR COUNTRY! 📢</h5></div>
 
     <div id="game-container">
         <div id="winner-popup">
-            <h1 id="win-flag-name" style="margin:0; font-size: 35px; color: #2e7d32; font-family: 'Bebas Neue';">WINNER!</h1>
+            <h1 id="win-flag-name" style="margin:0; font-size: 30px; color: #2e7d32; font-family: 'Bebas Neue';">WINNER!</h1>
             <img id="winner-flag-img" src="" alt="">
-            <p style="margin-top: 20px; color: #666; letter-spacing: 2px;">PREPARING NEXT ROUND...</p>
+            <p style="margin-top: 15px; color: #666; font-size: 12px;">PREPARING NEXT ROUND...</p>
         </div>
     </div>
 
     <div id="leaderboard-box">
-        <h3>🏆 Hall of Fame (Winners)</h3>
+        <h3>🏆 Winners Hall</h3>
         <div id="history-list"></div>
     </div>
 
-    <div id="footer">
-        &copy; 2026 | Created by <span>Rafid Ahammed</span> | Copyright Protected
-    </div>
+    <div id="footer">Created by <span>Rafid Ahammed</span></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 
     <script>
-        // জাভাস্ক্রিপ্ট কোড আগের মতোই থাকবে, শুধু বর্ডার কালার রেন্ডারিং এ আপডেট হয়েছে
+        // --- ফুল স্ক্রিন ফাংশন ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
         const { Engine, Render, Runner, Bodies, Composite, Body, Events } = Matter;
         const engine = Engine.create();
         const world = engine.world;
         engine.gravity.y = 1.35;
 
         const dpr = window.devicePixelRatio || 1;
-        const baseSize = Math.min(window.innerWidth, window.innerHeight) * 0.88; 
+        const baseSize = Math.min(window.innerWidth, window.innerHeight) * 0.85; 
         const width = baseSize; const height = baseSize;
 
         const render = Render.create({
             element: document.getElementById('game-container'),
             engine: engine,
-            options: { 
-                width: width * dpr, 
-                height: height * dpr, 
-                wireframes: false, 
-                background: 'transparent' // ক্যানভাস স্বচ্ছ রাখা হয়েছে
-            }
+            options: { width: width * dpr, height: height * dpr, wireframes: false, background: 'transparent' }
         });
 
         render.canvas.style.width = width + 'px';
@@ -195,28 +173,16 @@
         const countries = [
             {n:"BANGLADESH", c:"bd"}, {n:"INDIA", c:"in"}, {n:"USA", c:"us"}, {n:"BRAZIL", c:"br"}, {n:"ARGENTINA", c:"ar"},
             {n:"GERMANY", c:"de"}, {n:"FRANCE", c:"fr"}, {n:"UK", c:"gb"}, {n:"CHINA", c:"cn"}, {n:"JAPAN", c:"jp"},
-            {n:"RUSSIA", c:"ru"}, {n:"SAUDI ARABIA", c:"sa"}, {n:"PAKISTAN", c:"pk"}, {n:"CANADA", c:"ca"}, {n:"AUSTRALIA", c:"au"},
-            {n:"ITALY", c:"it"}, {n:"SPAIN", c:"es"}, {n:"PORTUGAL", c:"pt"}, {n:"TURKEY", c:"tr"}, {n:"QATAR", c:"qa"},
-            {n:"UAE", c:"ae"}, {n:"SOUTH KOREA", c:"kr"}, {n:"NORTH KOREA", c:"kp"}, {n:"MEXICO", c:"mx"}, {n:"EGYPT", c:"eg"},
-            {n:"SOUTH AFRICA", c:"za"}, {n:"NIGERIA", c:"ng"}, {n:"NETHERLANDS", c:"nl"}, {n:"SWITZERLAND", c:"ch"}, {n:"SWEDEN", c:"se"},
-            {n:"NORWAY", c:"no"}, {n:"DENMARK", c:"dk"}, {n:"MALAYSIA", c:"my"}, {n:"INDONESIA", c:"id"}, {n:"VIETNAM", c:"vn"},
-            {n:"THAILAND", c:"th"}, {n:"SINGAPORE", c:"sg"}, {n:"NEW ZEALAND", c:"nz"}, {n:"IRAN", c:"ir"}, {n:"IRAQ", c:"iq"},
-            {n:"AFGHANISTAN", c:"af"}, {n:"PALESTINE", c:"ps"}, {n:"MOROCCO", c:"ma"}, {n:"UKRAINE", c:"ua"}, {n:"POLAND", c:"pl"},
-            {n:"BELGIUM", c:"be"}, {n:"FINLAND", c:"fi"}, {n:"GREECE", c:"gr"}, {n:"SRI LANKA", c:"lk"}, {n:"BHUTAN", c:"bt"}
+            {n:"PAKISTAN", c:"pk"}, {n:"CANADA", c:"ca"}, {n:"AUSTRALIA", c:"au"}, {n:"ITALY", c:"it"}, {n:"SPAIN", c:"es"},
+            {n:"PORTUGAL", c:"pt"}, {n:"TURKEY", c:"tr"}, {n:"MALAYSIA", c:"my"}, {n:"INDONESIA", c:"id"}, {n:"SRI LANKA", c:"lk"}
         ];
 
-        function startNewGame() {
-            if (!gameActive) {
-                initGame();
-            }
-        }
+        function startNewGame() { if (!gameActive) initGame(); }
 
         function exitGame() {
             gameActive = false;
             Composite.clear(world);
-            balls = [];
-            outerCircle = [];
-            xBarrier = [];
+            balls = []; outerCircle = []; xBarrier = [];
             document.getElementById('alive-val').innerText = "0";
             document.getElementById('eliminated-val').innerText = "0";
             document.getElementById('winner-popup').style.display = 'none';
@@ -233,7 +199,6 @@
             for (let i = 0; i < segments; i++) {
                 if (i < 9) continue; 
                 const angle = (i / segments) * Math.PI * 2;
-                // ওয়াল কালার ছবির মতো সবুজ করা হয়েছে
                 const wall = Bodies.rectangle(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius, 35, 15, { isStatic: true, angle: angle, render: { fillStyle: '#2e7d32' } });
                 outerCircle.push(wall);
             }
@@ -248,7 +213,7 @@
 
             countries.forEach((country) => {
                 const imgUrl = `https://flagcdn.com/w160/${country.c}.png`;
-                const ball = Bodies.rectangle(centerX + (Math.random()-0.5)*150, centerY + (Math.random()-0.5)*150, 32, 22, {
+                const ball = Bodies.rectangle(centerX + (Math.random()-0.5)*100, centerY + (Math.random()-0.5)*100, 32, 22, {
                     restitution: 0.6, friction: 0.05,
                     render: { sprite: { texture: imgUrl, xScale: 0.2, yScale: 0.2 } }
                 });
@@ -299,20 +264,12 @@
                 document.getElementById('winner-flag-img').src = winner.flagUrl;
                 document.getElementById('winner-popup').style.display = 'block';
 
-                const historyList = document.getElementById('history-list');
-                if (historyList.scrollHeight > historyList.clientHeight * 2.5) {
-                    historyList.innerHTML = ""; 
-                }
-
                 const entry = document.createElement('div');
                 entry.className = 'history-entry';
                 entry.innerHTML = `<b>R${roundCount}:</b> ${winner.flagName}`;
-                historyList.appendChild(entry);
+                document.getElementById('history-list').appendChild(entry);
 
-                setTimeout(() => { 
-                    roundCount++; 
-                    initGame(); 
-                }, 5000);
+                setTimeout(() => { roundCount++; initGame(); }, 5000);
             }
         }
     </script>
